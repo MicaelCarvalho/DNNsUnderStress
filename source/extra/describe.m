@@ -1,12 +1,16 @@
-function []=describe(image_or_folder, output_folder)
+function []=describe(image_or_folder, output_folder, enable_normalization)
     % image_or_folder = path to a folder containing images or to a single image;
-    % output_folder = path to a folder; we will save the features there.
+    % output_folder = path to a folder; we will save the features there;
+    % enable_normalization = normalize features after extraction; default = true.
 
     if ~exist('image_or_folder', 'var')
     	throw(MException('extra:image_or_folder', 'ERROR: Parameter image_or_folder is empty.'));
     end
     if ~exist('output_folder', 'var')
     	throw(MException('extra:output_folder', 'ERROR: Parameter output_folder is empty.'));
+    end
+    if ~exist('enable_normalization', 'var')
+    	enable_normalization = true;
     end
 
     addpath('..');
@@ -20,7 +24,7 @@ function []=describe(image_or_folder, output_folder)
 	end
 	
 	if ~exist('imagenet-vgg-m.mat', 'file')
-		urlwrite('http://www.vlfeat.org/matconvnet/models/imagenet-vgg-m.mat', 'imagenet-vgg-m.mat') ;
+		urlwrite('http://www.vlfeat.org/matconvnet/models/beta18/imagenet-vgg-m.mat', 'imagenet-vgg-m.mat') ;
 	end
 
 	fprintf('Starting MatConvNet...\n');
@@ -50,9 +54,13 @@ function []=describe(image_or_folder, output_folder)
 			im_ = im_ - net.meta.normalization.averageImage;
 	        res = vl_simplenn(net, im_);
 	        raw = res(19+1).x;
-	        val = squeeze(double(raw));
-			no = norm(val);
-			feature_vector = squeeze(raw ./ no)';
+	        if enable_normalization
+	        	val = squeeze(double(raw));
+				no = norm(val);
+				feature_vector = squeeze(raw ./ no)';
+			else
+				feature_vector = squeeze(raw)';
+	        end
 			[ign, file, ext] = fileparts(char(file));
 			fcommon.save_feature_vector(feature_vector, sprintf('%s/%s', output_folder, char(file)));
 		end
@@ -67,9 +75,13 @@ function []=describe(image_or_folder, output_folder)
 		im_ = im_ - net.meta.normalization.averageImage;
         res = vl_simplenn(net, im_);
         raw = res(19+1).x;
-        val = squeeze(double(raw));
-		no = norm(val);
-		feature_vector = squeeze(raw ./ no)';
+        if enable_normalization
+        	val = squeeze(double(raw));
+			no = norm(val);
+			feature_vector = squeeze(raw ./ no)';
+		else
+			feature_vector = squeeze(raw)';
+        end
 		fcommon.save_feature_vector(feature_vector, sprintf('%s/%s', output_folder, char(file)));
     end
     fprintf('Done processing %d files.\n\n', nfiles);

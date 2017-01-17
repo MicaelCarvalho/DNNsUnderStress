@@ -17,7 +17,7 @@ Here we provide a simple implementation of our stresses. We defined a file forma
 
 ### GETTING STARTED
 
-Inside this folder you will find 4 source files and 1 folder, described below:
+Inside the source folder you will find 4 source files and 1 folder, described below:
 
 + common.m
    Provides the basic input/output functions to read and save feature vectors;
