@@ -38,11 +38,13 @@ function []=describe(image_or_folder, output_folder, enable_normalization)
 
 	nfiles = 0;
 	if isdir(image_or_folder)
+		fprintf('Gathering the list of images to be described...\n');
         files = dir(image_or_folder);
 		files = {files(~[files.isdir]).name};
-		for file = files
-			nfiles = nfiles + 1;
-			fprintf('Describing ''%s''...\n', char(file));
+		tot_files = length(files);
+		for nfiles = 1:tot_files
+			file = files(nfiles);
+			fprintf('Describing %d of %d: ''%s''...\n', nfiles, tot_files, char(file));
 			try
 				im = imread(sprintf('%s/%s', image_or_folder, char(file)));
 			catch exception
